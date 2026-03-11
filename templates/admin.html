@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel | StockScraper</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <header class="dashboard-header">
+        <div class="brand"><h1>StockScraper <span>Pro (Admin)</span></h1></div>
+        <div class="header-actions">
+            <a href="{{ url_for('dashboard_home') }}" class="btn-outline">← Back to Dashboard</a>
+        </div>
+    </header>
+
+    <div class="container">
+        
+        <h2 class="page-title">🛠️ Admin Response Panel</h2>
+        <p style="color: var(--text-muted); margin-bottom: 25px;">
+            View submitted queries and post responses. Submitting a response here will automatically email the user.
+        </p>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}\
+            {% for category, message in messages %}\
+              <div class="flash-message flash-{{ category }}" style="margin-bottom: 20px;">
+                {{ message }}
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <div class="card" style="padding: 10px; margin-bottom: 20px;">
+            <nav class="tab-container">
+              <button class="tab-button" data-tab="tab-pending">
+                Pending Queries ({{ pending_queries|length }})
+              </button>
+              <button class="tab-button" data-tab="tab-completed">
+                Completed Queries ({{ completed_queries|length }})
+              </button>
+            </nav>
+        </div>
+
+        <div id="tab-pending" class="tab-content-item">
+            <div class="admin-query-list">
+                {% if pending_queries %}
+                    {% for query in pending_queries %}
+                        <div class="card admin-query-item admin-query-pending">
+                            <div class="admin-query-details">
+                                <p><strong>Status:</strong> <span class="admin-status-badge status-pending">Pending</span></p>
+                                <p><strong>User:</strong> {{ query.username }}</p>
+                                <p><strong>Name:</strong> {{ query.name }}</p>
+                                <p><strong>Email:</strong> {{ query.email }}</p>
+                                <p><strong>Ticket ID:</strong> {{ query.ticket_id }}</p>
+                                <p><strong>Submitted:</strong> {{ query.timestamp }}</p>
+                            </div>
+                            
+                            <div class="admin-query-content">
+                                <h4 class="response-header">User's Query:</h4>
+                                <p class="response-text">{{ query.query }}</p>
+    
+                                <h4 class="response-header" style="margin-top: 20px;">Your Response:</h4>
+                                <form method="POST" action="{{ url_for('admin_panel') }}" class="admin-response-form">
+                                    <input type="hidden" name="ticket_id" value="{{ query.ticket_id }}">
+                                    <input type="hidden" name="username" value="{{ query.username }}">
+                                    <textarea name="response_text" class="input-field" rows="3" placeholder="Type your response here..." required></textarea>
+                                    <button type="submit" class="btn-primary">Submit Response & Email User</button>
+                                </form>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="card" style="text-align: center; color: var(--text-muted); padding: 50px;">
+                        No pending queries.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div id="tab-completed" class="tab-content-item">
+            <div class="admin-query-list">
+                {% if completed_queries %}
+                    {% for query in completed_queries %}
+                        <div class="card admin-query-item admin-query-completed">
+                            <div class="admin-query-details">
+                                <p><strong>Status:</strong> <span class="admin-status-badge status-completed">Responded</span></p>
+                                <p><strong>User:</strong> {{ query.username }}</p>
+                                <p><strong>Name:</strong> {{ query.name }}</p>
+                                <p><strong>Email:</strong> {{ query.email }}</p>
+                                <p><strong>Ticket ID:</strong> {{ query.ticket_id }}</p>
+                                <p><strong>Submitted:</strong> {{ query.timestamp }}</p>
+                            </div>
+                            
+                            <div class="admin-query-content">
+                                <h4 class="response-header">User's Query:</h4>
+                                <p class="response-text">{{ query.query }}</p>
+    
+                                <h4 class="response-header" style="margin-top: 20px;">Your Response:</h4>
+                                <form method="POST" action="{{ url_for('admin_panel') }}" class="admin-response-form">
+                                    <input type="hidden" name="ticket_id" value="{{ query.ticket_id }}">
+                                    <input type="hidden" name="username" value="{{ query.username }}">
+                                    <textarea name="response_text" class="input-field" rows="3" required>{{ query.response }}</textarea>
+                                    <button type="submit" class="btn-primary">Update Response & Re-send Email</button>
+                                </form>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="card" style="text-align: center; color: var(--text-muted); padding: 50px;">
+                        No completed queries.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Up | StockScraper</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="auth-body">
+  <div class="auth-wrapper">
+    <div class="auth-box">
+      <h2>Create Account</h2>
+      <p class="auth-subtext">Enter your details to create an account and receive your OTP.</p>
+      <form method="POST" action="{{ url_for('signup') }}">
+        
+        <input type="text" name="username" class="input-field" placeholder="Username" required>
+        <input type="password" name="password" class="input-field" placeholder="Password" required>
+        
+        <!-- Added required email field for OTP -->
+        <input type="email" name="email" class="input-field" placeholder="Email (Required for OTP)" required>
+        
+        <input 
+            type="tel" 
+            name="mobile" 
+            class="input-field" 
+            placeholder="Mobile Number (Optional)" 
+            pattern="[0-9]{10,}" 
+            title="Enter a valid mobile number (10+ digits)"
+        >
+        
+        {% if error %}
+        <div class="error-banner">{{ error }}</div>
+        {% endif %}
+        
+        <button type="submit" class="btn-primary" style="width: 100%; margin-top: 10px;">Sign Up</button>
+      </form>
+      <a href="{{ url_for('login') }}" class="auth-link">Already have an account? Login</a>
+    </div>
+  </div>
+</body>
+</html>

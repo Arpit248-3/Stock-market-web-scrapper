@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StockScraper | Data Scraper</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <header class="dashboard-header">
+        <div class="brand"><h1>StockScraper <span>Pro</span></h1></div>
+        <div class="header-actions">
+            <button id="themeToggle" class="theme-toggle" title="Switch Theme">🌙</button>
+            <span style="font-weight: 600;">Welcome, {{ user }}</span>
+            <a href="{{ url_for('logout') }}" class="btn-outline">Logout</a>
+        </div>
+    </header>
+
+    <div class="container">
+        
+        {% include '_nav.html' with context %}
+
+        <h2 class="page-title">📰 News Scraper Tool</h2>
+
+        <section class="card">
+            <h3 class="analysis-header">Scrape News by Ticker</h3>
+            <p style="color: var(--text-muted); margin-bottom: 20px;">
+                Enter a valid NSE ticker symbol (e.g., INFY.NS) to fetch the latest news articles associated with that stock.
+            </p>
+            
+            <div class="controls-bar" style="padding: 0; box-shadow: none; border: none; margin-bottom: 0;">
+                <div class="control-group" style="flex-grow: 1;">
+                    <label for="scrapeTicker">Ticker Symbol</label>
+                    <input type="text" id="scrapeTicker" class="input-field" placeholder="e.g., RELIANCE.NS" required>
+                </div>
+                <button id="scrapeNewsBtn" class="btn-primary" style="margin-top: 0;">Scrape News</button>
+            </div>
+        </section>
+
+        <section class="card" style="margin-top: 20px;">
+            <h3 class="analysis-header">Scraped Articles</h3>
+            <div id="scrapeResults">
+                <p style="color: var(--text-muted); text-align: center; padding: 20px 0;">
+                    News results will appear here...
+                </p>
+            </div>
+        </section>
+        
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

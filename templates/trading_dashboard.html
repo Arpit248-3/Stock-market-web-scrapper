@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StockScraper | Trading Panel</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+  <header class="dashboard-header">
+    <div class="brand">
+      <h1>StockScraper <span>Pro</span></h1>
+    </div>
+    <div class="header-actions">
+      <button id="themeToggle" class="theme-toggle" title="Switch Theme">🌙</button>
+      <span style="font-weight: 600;">Welcome, {{ user }}</span>
+      <a href="{{ url_for('logout') }}" class="btn-outline">Logout</a>
+    </div>
+  </header>
+
+  <div class="container">
+    
+    {% include '_nav.html' with context %}
+    
+    <h2 class="page-title">📈 Trading Panel</h2>
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="flash-message flash-{{ category }}" style="margin-bottom: 20px;">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <section class="trading-layout">
+        
+        <div class="card">
+            <h3 class="analysis-header">Execute Trade</h3>
+            <form id="tradeForm">
+                <div class="control-group">
+                    <label>Action</label>
+                    <div class="radio-group">
+                        <input type="radio" id="actionBuy" name="tradeAction" value="buy" checked>
+                        <label for="actionBuy">Buy</label>
+                        <input type="radio" id="actionSell" name="tradeAction" value="sell">
+                        <label for="actionSell">Sell</label>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                  <label for="tradeTicker">Ticker Symbol (e.g., INFY.NS)</label>
+                  <input type="text" id="tradeTicker" class="input-field" placeholder="Enter Ticker Symbol" required>
+                </div>
+
+                <div class="control-group">
+                    <label for="tradeQuantity">Quantity</label>
+                    <input type="number" id="tradeQuantity" class="input-field" placeholder="0" min="1" required>
+                </div>
+
+                <div class="control-group">
+                    <label for="broker">Broker</label>
+                    <select id="broker" class="input-field">
+                        {% for key, config in broker_config.items() %}
+                        <option value="{{ key }}">{{ config.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label for="tradeStrategy">Trade Strategy</label>
+                    <select id="tradeStrategy" class="input-field">
+                        <option value="delivery">Delivery Trading</option>
+                        <option value="intraday">Day Trading</option>
+                        <option value="swing">Swing Trading</option>
+                        <option value="position">Position Trading</option>
+                        <option value="scalping">Scalping (Intraday)</option>
+                        <option value="momentum">Momentum (Intraday)</option>
+                        <option value="technical">Technical (Intraday)</option>
+                        <option value="fundamental">Fundamental (Delivery)</option>
+                    </select>
+                </div>
+                <input type="hidden" id="tradeType" name="tradeType" value="delivery">
+
+
+                <div class="control-group leverage-group hidden"> <label>Trade on Margin</label>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="useMargin" name="useMargin" value="true">
+                        <label for="useMargin">Use 5x Leverage</label>
+                    </div>
+                </div>
+                
+                <button id="executeTradeBtn" class="btn-primary" style="width: 100%; margin-top: 10px;">Execute Trade</button>
+            </form>
+        </div>
+        
+        <div class="card">
+            <h3 class="analysis-header">Mock Account Status</h3>
+            <div class="detail-grid" style="grid-template-columns: 1fr; gap: 15px;">
+                <div class="detail-item">
+                    <span class="detail-label">Available Cash</span>
+                    <span class="detail-value" style="font-size: 1.5rem; color: var(--success); font-weight: 600;">
+                      ₹{{ "%.2f"|format(cash) }}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card" style="grid-column: 1 / -1;">
+            <h3 class="analysis-header">Current Portfolio</h3>
+            
+            <table id="portfolioTable">
+                <thead>
+                    <tr>
+                        <th>Stock</th>
+                        <th>Shares</th>
+                        <th>Avg. Cost</th>
+                        <th>Current Price</th>
+                        <th>Total G/L</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in portfolio %}
+                    <tr>
+                        <td>{{ item.symbol }}</td>
+                        <td>{{ item.shares }}</td>
+                        <td>₹{{ "%.2f"|format(item.cost) }}</td>
+                        <td>₹{{ "%.2f"|format(item.current) }}</td>
+                        <td class="{% if item.gain_loss > 0 %}trend-up{% elif item.gain_loss < 0 %}trend-down{% endif %}" style="font-weight: 600;">
+                            {% if item.gain_loss > 0 %}+{% endif %}₹{{ "%.2f"|format(item.gain_loss) }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    {% if not portfolio %}
+                    <tr>
+                        <td colspan="5" style="text-align: center; color: var(--text-muted);">Your portfolio is currently empty.</td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card" style="grid-column: 1 / -1;">
+            <h3 class="analysis-header">Transaction History</h3>
+            
+            <table id="historyTable">
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Trade Type</th>
+                        <th>Stock</th>
+                        <th>Broker</th>
+                        <th>Leverage</th>
+                        <th>Shares</th>
+                        <th>Price</th>
+                        <th>Value</th>
+                        <th>Fees</th>
+                        <th>Timestamp</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for trade in history %}
+                    <tr>
+                        <td class="{% if trade.type == 'Buy' %}trend-up{% else %}trend-down{% endif %}" style="font-weight: 600;">
+                            {{ trade.type }}
+                        </td>
+                        <td>{{ trade.trade_type | capitalize }}</td>
+                        <td>{{ trade.symbol }}</td>
+                        <td>{{ trade.broker }}</td>
+                        <td>{{ trade.leverage }}</td>
+                        <td>{{ trade.shares }}</td>
+                        <td>₹{{ "%.2f"|format(trade.price) }}</td>
+                        <td>₹{{ "%.2f"|format(trade.total_value) }}</td>
+                        <td>₹{{ "%.2f"|format(trade.fees) }}</td>
+                        <td style="font-size: 0.9rem; color: var(--text-muted);">{{ trade.timestamp }}</td>
+                    </tr>
+                    {% endfor %}
+                    {% if not history %}
+                    <tr>
+                        <td colspan="10" style="text-align: center; color: var(--text-muted);">You have no transactions yet.</td> </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card" style="grid-column: 1 / -1;">
+            <h3 class="analysis-header">Broker & Demat Account Information</h3>
+            <div class="broker-info-grid">
+                {% for key, info in demat_info.items() %}
+                <div class="broker-info-item">
+                    <h4>{{ info.desc.split(':')[0] }}</h4>
+                    <p>{{ info.desc.split(': ')[1] if ':' in info.desc else info.desc }}</p>
+                    <a href="{{ info.url }}" target="_blank" rel="noopener noreferrer" class="btn-outline" style="margin-top: 10px;">Visit Website</a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+    </section>
+  </div>
+
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

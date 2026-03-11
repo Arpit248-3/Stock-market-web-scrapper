@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StockScraper | Help</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+  <header class="dashboard-header">
+    <div class="brand">
+      <h1>StockScraper <span>Pro</span></h1>
+    </div>
+    <div class="header-actions">
+      <button id="themeToggle" class="theme-toggle" title="Switch Theme">🌙</button>
+      <span style="font-weight: 600;">Welcome, {{ user }}</span>
+      <a href="{{ url_for('logout') }}" class="btn-outline">Logout</a>
+    </div>
+  </header>
+
+  <div class="container">
+    
+    {% include '_nav.html' with context %}
+    
+    <h2 class="page-title">❓ Help & How-to Guide</h2>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}\
+        {% for category, message in messages %}\
+          <div class="flash-message flash-{{ category }} success-banner" style="margin-bottom: 20px;">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <div class="help-grid">
+      
+      <div class="card" style="padding: 10px;">
+        <nav class="tab-container">
+          <button class="tab-button" data-tab="tab-guide">How-to Guide</button>
+          <button class="tab-button" data-tab="tab-submit">Submit Query</button>
+          <button class="tab-button" data-tab="tab-activity">Recent Activity</button>
+        </nav>
+      </div>
+
+      <div class="card">
+        
+        <div id="tab-guide" class="tab-content-item">
+          <h3 class="analysis-header">How to Use StockScraper</h3>
+          
+          <h4 class="guide-subtitle">1. Analytics Dashboard</h4>
+          <p class="guide-text">
+            This is your main hub for market analysis.
+          </p>
+          <ul class="guide-list">
+            <li><strong>Select Stock:</strong> Use the dropdown for pre-selected top stocks.</li>
+            <li><strong>Search Ticker:</strong> Enter any official NSE ticker symbol (e.g., <code>RELIANCE.NS</code>, <code>TCS.NS</code>) for custom analysis.</li>
+            <li><strong>Time Period:</strong> Choose your desired time frame, from 5 days to 1 year.</li>
+            <li><strong>Chart Type:</strong> Switch between Line, Area, and Candlestick charts.</li>
+            <li><strong>Analyse:</strong> Click the button to fetch and display all data.</li>
+          </ul>
+
+          <h4 class="guide-subtitle">2. Trading Panel</h4>
+          <p class="guide-text">
+            Practice your trading strategy with a ₹1,00,000 mock portfolio.
+          </p>
+          <ul class="guide-list">
+            <li><strong>Select Action:</strong> Choose "Buy" or "Sell".</li>
+            <li><strong>Ticker:</strong> Enter the NSE ticker symbol you wish to trade.</li>
+            <li><strong>Quantity:</strong> Enter the number of shares.</li>
+            <li><strong>Execute:</strong> Your trade will be processed at the last market price.</li>
+            <li><strong>Portfolio:</strong> Your holdings and cash balance will update automatically.</li>
+          </ul>
+
+          <h4 class="guide-subtitle">3. Data Scraper</h4>
+          <p class="guide-text">
+            Use this tool to fetch the latest financial news for any stock ticker.
+          </p>
+        </div>
+
+        <div id="tab-submit" class="tab-content-item">
+          <h3 class="analysis-header">Submit a Support Ticket</h3>
+          <p class="guide-text" style="margin-bottom: 20px;">
+            Facing an issue or have a question? Let us know. This will send an email to the support team.
+          </p>
+          
+          <form id="helpForm" method="POST" action="{{ url_for('help_dashboard') }}">
+            <div class="control-group" style="margin-bottom: 15px;">
+              <label for="name">Your Name</label>
+              <input type="text" id="name" name="name" class="input-field" required>
+            </div>
+            <div class="control-group" style="margin-bottom: 15px;">
+              <label for="email">Your Email</label>
+              <input type="email" id="email" name="email" class="input-field" required>
+            </div>
+            <div class="control-group" style="margin-bottom: 20px;">
+              <label for="query">Your Query</label>
+              <textarea id="query" name="query" class="input-field" rows="5" required></textarea>
+            </div>
+            <button type="submit" class="btn-primary">Submit Query</button>
+          </form>
+        </div>
+        
+        <div id="tab-activity" class="tab-content-item">
+          <h3 class="analysis-header">Your Recent Queries</h3>
+          
+          <div class="query-list">
+            {% if help_queries %}
+              {% for query in help_queries %}
+                <div class="query-item">
+                  <p class="query-text"><strong>Your Query:</strong> {{ query.query }}</p>
+                  <span class="query-meta">
+                    Submitted by {{ query.name }} ({{ query.email }}) on {{ query.timestamp }}
+                    {% if query.id %} | Ticket ID: {{ query.id }} {% endif %}
+                  </span>
+
+                  <div class="query-response">
+                    <h5 class="response-header">Support Response:</h5>
+                    {% if query.response and query.response != 'Pending...' %}
+                      <p class="response-text">{{ query.response }}</p>
+                    {% else %}
+                      <p class="response-text-pending">Pending...</p>
+                    {% endif %}
+                  </div>
+
+                </div>
+              {% endfor %}
+            {% else %}
+              <p class="guide-text" style="text-align: center; padding: 20px 0;">
+                You have not submitted any queries.
+              </p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+
+</body>
+</html>

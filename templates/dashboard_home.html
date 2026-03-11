@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StockScraper | Welcome</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+  <header class="dashboard-header">
+    <div class="brand">
+      <h1>StockScraper <span>Pro</span></h1>
+    </div>
+    <div class="header-actions">
+      <button id="themeToggle" class="theme-toggle" title="Switch Theme">🌙</button>
+      
+      <span style="font-weight: 600;">Welcome, {{ user }}</span>
+      
+      <a href="{{ url_for('logout') }}" class="btn-outline">Logout</a>
+    </div>
+  </header>
+
+  <div class="container">
+    
+    {% include '_nav.html' with context %}
+    
+    <h2 class="page-title">👋 Welcome to StockScraper!</h2>
+
+    <section class="dashboard-grid" style="grid-template-columns: 1fr;">
+        <div class="card">
+            <h3 class="analysis-header">Quick Start Guide</h3>
+            <p style="color: var(--text-muted); margin-bottom: 15px;">
+                Your powerful toolkit for market analysis and simulated trading is ready.
+            </p>
+            <ul style="padding-left: 20px; color: var(--text-main); line-height: 2;">
+                <li><strong>Analytics Dashboard:</strong> Start here to view real-time price charts and 30-day summaries for popular Indian stocks.</li>
+                <li><strong>Trading Panel:</strong> Practice your strategy with a mock trading interface and portfolio tracker.</li>
+                <li><strong>Data Scraper:</strong> (Future feature) A placeholder for advanced web scraping tools.</li>
+                <li><strong>Help & Support:</strong> Find guides and contact information if you get stuck.</li>
+            </ul>
+            <a href="{{ url_for('main_dashboard') }}" class="btn-primary" style="margin-top: 20px; display: inline-block;">Go to Analytics Dashboard →</a>
+        </div>
+    </section>
+  </div>
+
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

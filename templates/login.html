@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login | StockScraper</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="auth-body">
+  <div class="auth-wrapper">
+    <div class="auth-box">
+      <h2>Login to <span>StockScraper</span></h2>
+      <p class="auth-subtext">Access your powerful market analytics dashboard.</p>
+      <form method="POST" action="{{ url_for('login') }}">
+        <input type="text" name="username" class="input-field" placeholder="Username" required>
+        <input type="password" name="password" class="input-field" placeholder="Password" required>
+        
+        {% if error %}
+        <div class="error-banner">{{ error }}</div>
+        {% endif %}
+        
+        <button type="submit" class="btn-primary" style="width: 100%; margin-top: 10px;">Login</button>
+      </form>
+      <a href="{{ url_for('signup') }}" class="auth-link">Don’t have an account? Sign Up</a>
+    </div>
+  </div>
+</body>
+</html>
